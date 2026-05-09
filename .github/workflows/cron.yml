@@ -1,0 +1,28 @@
+name: 地产速览定时任务
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # 每半小时运行一次
+  workflow_dispatch:         # 允许手动触发
+
+jobs:
+  fetch-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests feedparser html2text
+
+      - name: Run fetch script
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          ATOM_FEEDS: ${{ secrets.ATOM_FEEDS }}
+        run: python fetch_and_push.py
